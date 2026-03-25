@@ -148,3 +148,60 @@ exports.deleteEmployeeController = async (req, res) => {
     res.status(500).json(error);
   }
 };
+
+
+//.......................USERS.................................................................//
+// controllers/userController.js
+exports.updateUserProfileController = async (req, res) => {
+  console.log("inside profile controller");
+
+  const email = req.payload; // from JWT middleware
+
+  try {
+    const existingUser = await users.findOne({ email });
+    if (!existingUser) return res.status(404).json({ message: "User not found" });
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No image uploaded" });
+    }
+
+    // Update profile image
+    existingUser.profile = `/Imguploads/${req.file.filename}`;
+    await existingUser.save();
+
+    res.status(200).json(existingUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// exports.updateUserProfileController = async (req, res) => {
+//   console.log("inside the profile controller");
+
+//   const { username, password, bio, role, profile } = req.body;
+//   const email = req.payload; // from JWT middleware
+
+//   // if image uploaded take new image else keep old image
+//   const uploadProfile = req.file
+//     ? `/Imguploads/${req.file.filename}`
+//     : profile;
+
+//   try {
+//     const updatedUser = await users.findOneAndUpdate(
+//       { email },
+//       {
+//         username,
+//         password,
+//         bio,
+//         role,
+//         profile: uploadProfile,
+//       },
+//       { new: true }
+//     );
+
+//     res.status(200).json(updatedUser);
+//   } catch (error) {
+//     res.status(500).json(error.message);
+//   }
+// };
